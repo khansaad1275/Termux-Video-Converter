@@ -3,3 +3,27 @@
 clear
 
 echo $command 
+echo "-----------------"
+echo "1. Video to MP3"
+echo "-----------------"
+
+read option
+
+if [[ -z $option ]];
+then
+	clear
+	printf "\e[031m Please choose a option!"
+else
+case $option in #Make Case list
+	1)
+	ffmpeg -i $command output.avi
+	;;
+	2)
+	echo " "
+	;;
+	
+	3)
+	break
+	;;
+esac 
+fi
