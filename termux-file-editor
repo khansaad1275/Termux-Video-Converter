@@ -8,6 +8,7 @@ echo "1. Video to MP3"
 echo "-----------------"
 
 read option
+read outputfilename
 
 if [[ -z $option ]];
 then
@@ -16,7 +17,7 @@ then
 else
 case $option in #Make Case list
 	1)
-	ffmpeg -i $command output.avi
+	ffmpeg -i $command $outputfilename.avi
 	;;
 	2)
 	echo " "
