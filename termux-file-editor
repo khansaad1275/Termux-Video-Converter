@@ -1,30 +1,145 @@
-#!/data/data/com.termux/files/usr/bin/bash
+ #!/bin/bash
 
-clear
-
-echo $command 
-echo "-----------------"
-echo "1. Video to MP3"
-echo "-----------------"
-
-read option
-read outputfilename
-
-if [[ -z $option ]];
-then
-	clear
-	printf "\e[031m Please choose a option!"
-else
-case $option in #Make Case list
-	1)
-	ffmpeg -i $command $outputfilename.avi
-	;;
-	2)
-	echo " "
-	;;
-	
-	3)
-	break
-	;;
-esac 
+# Check if ffmpeg is installed
+if ! command -v ffmpeg &> /dev/null; then
+    echo "Error: ffmpeg is not installed. Please install it in Termux using 'pkg install ffmpeg' and try again."
+    exit 1
 fi
+
+# Function to convert video to a specified format with optional compression
+convert_video() {
+    input_file="$1"
+    output_format="$2"
+    output_file="${input_file%.*}.$output_format"
+    crf_value="$3"
+
+    if [ -z "$crf_value" ]; then
+        ffmpeg -i "$input_file" "$output_file"
+    else
+        ffmpeg -i "$input_file" -crf "$crf_value" "$output_file"
+    fi
+
+    if [ $? -eq 0 ]; then
+        echo "Conversion successful. Output file: $output_file"
+    else
+        echo "Conversion failed."
+    fi
+}
+
+# Function to display the fancy menu
+display_menu() {
+    echo "-----------------------------------------------------"
+    echo "  ____  _                 _            _____  _  __ "
+    echo " | __ )| |_   _  ___  ___| |_ ___ _ __|_   _|/ |/ / "
+    echo " |  _ \| | | | |/ _ \/ __| __/ _ \ '__|| | /| | ' /  "
+    echo " | |_) | | |_| |  __/\__ \ ||  __/ |   | |/ | | . \  "
+    echo " |____/|_|\__,_|\___||___/\__\___|_|   |_/_ |_|_|\_\ "
+    echo "-----------------------------------------------------"
+    echo "Options:"
+    echo "1. MP4"
+    echo "2. AVI"
+    echo "3. MKV"
+    echo "4. MOV"
+    echo "5. WMV"
+    echo "6. MP3"
+    echo "0. Exit"
+    echo "-----------------------------------------------------"
+}
+
+# Function to display the compression menu
+display_compression_menu() {
+    echo "Select the compression level:"
+    echo "1. High Quality (CRF 18)"
+    echo "2. Medium Quality (CRF 23)"
+    echo "3. Low Quality (CRF 28)"
+    echo "0. No Compression"
+}
+
+# Main script
+if [ $# -lt 1 ]; then
+    echo "Usage: $0 <input_file>"
+    echo "Example: $0 input.mp4"
+    exit 1
+fi
+
+input_file="$1"
+
+while true; do
+    display_menu
+    read -p "Enter your choice (1-6, or 0 to exit): " choice
+
+    case "$choice" in
+        1) 
+            display_compression_menu
+            read -p "Enter compression choice (1-3, or 0 for no compression): " compression_choice
+            case "$compression_choice" in
+                1) convert_video "$input_file" "mp4" 18 ;;
+                2) convert_video "$input_file" "mp4" 23 ;;
+                3) convert_video "$input_file" "mp4" 28 ;;
+                0) convert_video "$input_file" "mp4" ;;
+                *) echo "Invalid compression choice. No compression will be applied." ;;
+            esac
+            ;;
+        2) 
+            display_compression_menu
+            read -p "Enter compression choice (1-3, or 0 for no compression): " compression_choice
+            case "$compression_choice" in
+                1) convert_video "$input_file" "avi" 18 ;;
+                2) convert_video "$input_file" "avi" 23 ;;
+                3) convert_video "$input_file" "avi" 28 ;;
+                0) convert_video "$input_file" "avi" ;;
+                *) echo "Invalid compression choice. No compression will be applied." ;;
+            esac
+            ;;
+        3) 
+            display_compression_menu
+            read -p "Enter compression choice (1-3, or 0 for no compression): " compression_choice
+            case "$compression_choice" in
+                1) convert_video "$input_file" "mkv" 18 ;;
+                2) convert_video "$input_file" "mkv" 23 ;;
+                3) convert_video "$input_file" "mkv" 28 ;;
+                0) convert_video "$input_file" "mkv" ;;
+                *) echo "Invalid compression choice. No compression will be applied." ;;
+            esac
+            ;;
+        4) 
+            display_compression_menu
+            read -p "Enter compression choice (1-3, or 0 for no compression): " compression_choice
+            case "$compression_choice" in
+                1) convert_video "$input_file" "mov" 18 ;;
+                2) convert_video "$input_file" "mov" 23 ;;
+                3) convert_video "$input_file" "mov" 28 ;;
+                0) convert_video "$input_file" "mov" ;;
+                *) echo "Invalid compression choice. No compression will be applied." ;;
+            esac
+            ;;
+        5) 
+            display_compression_menu
+            read -p "Enter compression choice (1-3, or 0 for no compression): " compression_choice
+            case "$compression_choice" in
+                1) convert_video "$input_file" "wmv" 18 ;;
+                2) convert_video "$input_file" "wmv" 23 ;;
+                3) convert_video "$input_file" "wmv" 28 ;;
+                0) convert_video "$input_file" "wmv" ;;
+                *) echo "Invalid compression choice. No compression will be applied." ;;
+            esac
+            ;;
+        6)
+            ffmpeg_installed=$(command -v ffmpeg)
+            if [ -z "$ffmpeg_installed" ]; then
+                echo "Error: ffmpeg is not installed. Cannot convert to MP3."
+            else
+                convert_video "$input_file" "mp3"
+            fi
+            ;;
+        0)
+            echo "Exiting."
+            exit 0
+            ;;
+        *)
+            echo "Invalid choice. Please select a valid option."
+            ;;
+    esac
+
+    echo
+done
